@@ -39,6 +39,10 @@ f = open('evidence', 'r')
 evidence_lines = filter(lambda x: x.strip() != '', f.readlines())
 f.close()
 
+f = open('warnings', 'r')
+warning_lines = filter(lambda x: x.strip() != '', f.readlines())
+f.close()
+
 for x in VARS:
   VARS[x] = filter(lambda x: x.strip() != '', map(lambda x: x.strip(), VARS[x].split(',')))
 
@@ -101,12 +105,22 @@ def random_evidence():
 # TODO don't repeat evidence lines
 intro_statement, previous_mappings = process(random.choice(intro_lines))
 print intro_statement
+used_evidence = set()
 for num_evidence in range(0, 3):
   # choose an evidence statement that contains some linkage to intro statement
+  ok = False
   for i in range(0, 100):
     candidate_statement = random.choice(evidence_lines).decode('utf-8')
     for key in previous_mappings:
-      if candidate_statement.find('{{%s}}' % (key)) > -1:
-        break
+      chaining_search_str = '{{%s}}' % (key)
+      if candidate_statement.find(chaining_search_str) > -1 \
+          and candidate_statement not in used_evidence:
+        ok = True
+    if ok: break
+  if not ok:
+    print '**** chaining failed, could not find any key match in', previous_mappings
+  used_evidence.add(candidate_statement)
   evidence_statement, previous_mappings = process(candidate_statement, previous_mappings)
   print evidence_statement
+
+print random.choice(warning_lines)
