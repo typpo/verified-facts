@@ -70,11 +70,6 @@ def process(statement):
         if m not in previously_used or word_choice != previously_used[category]:
           break
 
-    if word_choice.strip() == '':
-      print 'OH NO'
-      print m
-      print VARS[category]
-      sys.exit(1)
     replace_pattern = re.compile(m)
     previously_used[category] = word_choice
     statement = replace_pattern.sub(word_choice, statement, 1)
