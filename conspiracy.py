@@ -32,17 +32,38 @@ VARS = {
 }
 
 f = open('introductions', 'r')
-intro = '\n'.join(filter(lambda x: x.strip() != '', f.readlines()))
+intro_lines = filter(lambda x: x.strip() != '', f.readlines())
+f.close()
+
+f = open('evidence', 'r')
+evidence_lines = filter(lambda x: x.strip() != '', f.readlines())
 f.close()
 
 for x in VARS:
   VARS[x] = filter(lambda x: x.strip() != '', map(lambda x: x.strip(), VARS[x].split(',')))
 
-def process(statement):
+def process(statement, required_mappings={}):
+  # If a mapping is specified in required_mappings, we will prefer that
+  # mapping in this statement
   previously_used = {}
   registers = {}
+  mappings = {}   # the mappings used to generate this statement
   regex = re.compile('({{.*?}})')
   ms = regex.findall(statement)
+
+  def getwordchoice(category):
+    if category in required_mappings and len(required_mappings[category]) > 0:
+      # chained sentence
+      ret = required_mappings[category][0]
+      required_mappings[category].pop(0)
+      return ret
+    else:
+      for i in range(0, 20):
+        word_choice = random.choice(VARS[category])
+        if m not in previously_used or word_choice != previously_used[category]:
+          break
+      return word_choice
+
   for m in ms:
     m = unicode(m)
     category = m.replace('{{', '').replace('}}', '')
@@ -56,23 +77,30 @@ def process(statement):
         # TODO we're trusting the user to only use increasing registers
         # TODO make sure we don't repeat any register
         # TODO not supporting same_* when using numbers
-        for i in range(0, 20):
-          word_choice = random.choice(VARS[register_key])
-          if m not in previously_used or word_choice != previously_used[category]:
-            break
+        word_choice = getwordchoice(register_key)
         registers[register_key].append(word_choice)
       else:
         # old register input, this is just a lookup
         word_choice = register_values[register_number - 1]
     else:
-      for i in range(0, 20):
-        word_choice = random.choice(VARS[category])
-        if m not in previously_used or word_choice != previously_used[category]:
-          break
+      word_choice = getwordchoice(category)
 
     replace_pattern = re.compile(m)
     previously_used[category] = word_choice
+    mappings.setdefault(category, [])
+    mappings[category].append(word_choice)
     statement = replace_pattern.sub(word_choice, statement, 1)
-  return statement
+  return statement, mappings
 
-print process(intro)
+def random_intro():
+  return process(random.choice(intro_lines))[0]
+
+def random_evidence():
+  return process(random.choice(evidence_lines))[0]
+
+# TODO don't repeat evidence lines
+intro_statement, intro_mappings = process(random.choice(intro_lines))
+evidence_statement, evidence_mappings = process(random.choice(evidence_lines), intro_mappings)
+
+print intro_statement
+print evidence_statement
