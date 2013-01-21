@@ -32,11 +32,11 @@ VARS = {
 }
 
 f = open('introductions', 'r')
-intro = '\n'.join(f.readlines())
+intro = '\n'.join(filter(lambda x: x.strip() != '', f.readlines()))
 f.close()
 
 for x in VARS:
-  VARS[x] = map(lambda x: x.strip(), VARS[x].split(','))
+  VARS[x] = filter(lambda x: x.strip() != '', map(lambda x: x.strip(), VARS[x].split(',')))
 
 def process(statement):
   previously_used = {}
@@ -70,6 +70,11 @@ def process(statement):
         if m not in previously_used or word_choice != previously_used[category]:
           break
 
+    if word_choice.strip() == '':
+      print 'OH NO'
+      print m
+      print VARS[category]
+      sys.exit(1)
     replace_pattern = re.compile(m)
     previously_used[category] = word_choice
     statement = replace_pattern.sub(word_choice, statement, 1)
