@@ -45,13 +45,6 @@ def process(statement):
   ms = regex.findall(statement)
   for m in ms:
     m = unicode(m)
-    """
-    if m.startswith('{{same_'):
-      prev_used_key = m.replace('same_', '')
-      print prev_used_key
-      print previously_used
-      word_choice = previously_used[prev_used_key]
-    """
     if m[-1].isnumeric():
       register_number = int(m[-1])
       register_key = m[:-1]
