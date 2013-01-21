@@ -40,12 +40,36 @@ for x in VARS:
 
 def process(statement):
   previously_used = {}
+  registers = {}
   regex = re.compile('({{.*?}})')
   ms = regex.findall(statement)
   for m in ms:
+    m = unicode(m)
+    """
     if m.startswith('{{same_'):
       prev_used_key = m.replace('same_', '')
+      print prev_used_key
+      print previously_used
       word_choice = previously_used[prev_used_key]
+    """
+    if m[-1].isnumeric():
+      register_number = int(m[-1])
+      register_key = m[:-1]
+      registers.setdefault(register_key, [])
+      register_values = registers[register_key]
+      if len(register_values) < register_number:
+        # New register input
+        # TODO we're trusting the user to only use increasing registers
+        # TODO make sure we don't repeat any register
+        # TODO not supporting same_* when using numbers
+        for i in range(0, 20):
+          word_choice = random.choice(VARS[m])
+          if m not in previously_used or word_choice != previously_used[m]:
+            break
+        registers[register_key].append(word_choice)
+      else:
+        # old register input, this is just a lookup
+        word_choice = register_values[register_number - 1]
     else:
       for i in range(0, 20):
         word_choice = random.choice(VARS[m])
