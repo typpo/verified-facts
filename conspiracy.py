@@ -99,8 +99,14 @@ def random_evidence():
   return process(random.choice(evidence_lines))[0]
 
 # TODO don't repeat evidence lines
-intro_statement, intro_mappings = process(random.choice(intro_lines))
-evidence_statement, evidence_mappings = process(random.choice(evidence_lines), intro_mappings)
-
+intro_statement, previous_mappings = process(random.choice(intro_lines))
 print intro_statement
-print evidence_statement
+for num_evidence in range(0, 3):
+  # choose an evidence statement that contains some linkage to intro statement
+  for i in range(0, 100):
+    candidate_statement = random.choice(evidence_lines).decode('utf-8')
+    for key in previous_mappings:
+      if candidate_statement.find('{{%s}}' % (key)) > -1:
+        break
+  evidence_statement, previous_mappings = process(candidate_statement, previous_mappings)
+  print evidence_statement
