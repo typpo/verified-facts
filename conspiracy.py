@@ -24,7 +24,7 @@ VARS = {
 
 'place': 'Area 51, the White House, the Moon, the Alaskan Wilderness, Israel, North Korea, Russia, Roswell, Chernobyl, Fukushima, Three Mile Island, the San Andreas Fault, East Germany, Northern Ireland, ocean trenches, the Salt Caverns, Yucca Mountain, Iraq, Iran, Afghanistan, AMES research center, Auschwitz, Thomas Jefferson\'s home, the Vatican, Obama\'s birthplace, the former site of 7 World Trade Center',
 
-'famous_person': 'Hugo Chavez, Barack Obama, Arnold Schwarzenegger, Vladimir Putin, George W Bush, Bill Clinton, Pink, A Beastie Boy, Kim Jong Un, George Clooney, Lady Gaga, Madonna, Dick Cheney, Karl Rove, Glenn Beck, Saddam Hussein, Mahmoud Ahmadinejad, Julian Assange, Al Gore, The Reverend Al Sharpton, The Reverend Jesse Jackson, Michelle Obama, Billy Graham, Bill O\'Reilly, Oprah, Tom Cruise, Larry Page, Psy,',
+'famous_person': 'Hugo Chavez, Barack Obama, Arnold Schwarzenegger, Vladimir Putin, George W Bush, Bill Clinton, A Beastie Boy, Kim Jong Un, George Clooney, Lady Gaga, Madonna, Dick Cheney, Karl Rove, Glenn Beck, Saddam Hussein, Mahmoud Ahmadinejad, Julian Assange, Al Gore, The Reverend Al Sharpton, The Reverend Jesse Jackson, Michelle Obama, Billy Graham, Bill O\'Reilly, Oprah, Tom Cruise, Larry Page, Psy,',
 }
 
 f = open('introductions', 'r')
@@ -53,12 +53,25 @@ for x in VARS:
 PLURALIZE_CATEGORIES = set(['has/have', 'is/are', 'was/were', 'it/them', 'its/their'])
 OTHER_SPECIAL_CATEGORIES = set(['it/them'])
 
+# Try not to link on these categories.  Without something like this you tend to get non-sequiturs, linked
+# by the object of sentences.
+LINKED_CATEGORIES_DEMOTE_PRECEDENCE = ['malady', 'dangerous_noun', 'abstract_noun']
+def demote_precedence_sort(a, b):
+  try:
+    ascore = LINKED_CATEGORIES_DEMOTE_PRECEDENCE.index(a)
+  except ValueError:
+    ascore = -1
+  try:
+    bscore = LINKED_CATEGORIES_DEMOTE_PRECEDENCE.index(b)
+  except ValueError:
+    bscore = -1
+  return bscore - ascore
+
 def process(statement, required_mappings={}):
   # If a mapping is specified in required_mappings, we will prefer that
   # mapping in this statement
   previously_used = {}
   registers = {}
-  mappings = {}   # the mappings used to generate this statement
   regex = re.compile('({{.*?}})')
   ms = regex.findall(statement)
 
@@ -69,12 +82,16 @@ def process(statement, required_mappings={}):
     elif category in required_mappings and len(required_mappings[category]) > 0:
       # chained sentence
       word_choice = required_mappings[category][0]
-      required_mappings[category].pop(0)
-    else:
-      for i in range(0, 20):
-        word_choice = random.choice(VARS[category])
-        if m not in previously_used or word_choice != previously_used[category]:
-          break
+      if word_choice != previous_word_choice:    # don't repeat anything
+        # move to back
+        required_mappings[category].pop(0)
+        required_mappings[category].append(word_choice)
+        return word_choice
+
+    for i in range(0, 20):
+      word_choice = random.choice(VARS[category])
+      if m not in previously_used or word_choice != previously_used[category]:
+        break
     return word_choice
 
   previous_word_choice = None
@@ -101,16 +118,12 @@ def process(statement, required_mappings={}):
 
     replace_pattern = re.compile(m)
     previous_word_choice = previously_used[category] = word_choice
-    mappings.setdefault(category, [])
-    mappings[category].append(word_choice)
+    if category not in PLURALIZE_CATEGORIES and \
+       category not in OTHER_SPECIAL_CATEGORIES:   # we don't want matches based on these special keywords
+      required_mappings.setdefault(category, [])
+      required_mappings[category].append(word_choice)
     statement = replace_pattern.sub(word_choice, statement, 1)
-  return statement, mappings
-
-def random_intro():
-  return process(random.choice(intro_lines))[0]
-
-def random_evidence():
-  return process(random.choice(evidence_lines))[0]
+  return statement, required_mappings
 
 def generate_paragraph():
   used_filler = set()
@@ -124,6 +137,7 @@ def generate_paragraph():
 
   lines = []
   intro_statement, previous_mappings = process(random.choice(intro_lines))
+  print intro_statement, previous_mappings
   lines.append(intro_statement)
   used_evidence = set()  # don't repeat evidence lines
   for num_evidence in range(0, 3):
@@ -136,6 +150,7 @@ def generate_paragraph():
       # eg. country should match more than abstract_noun
       possible_linked_categories = previous_mappings.keys()
       random.shuffle(possible_linked_categories)
+      possible_linked_categories = sorted(possible_linked_categories, demote_precedence_sort)
       for key in possible_linked_categories:
         chaining_search_str = u'{{%s}}' % (key)
         if candidate_statement.find(chaining_search_str) > -1 \
@@ -146,6 +161,7 @@ def generate_paragraph():
       lines.append('**** chaining failed, could not find any key match in', previous_mappings)
     used_evidence.add(candidate_statement)
     evidence_statement, previous_mappings = process(candidate_statement, previous_mappings)
+    print evidence_statement, previous_mappings
 
     lines.append(evidence_statement)
     if random.random() > .4:

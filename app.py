@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from flask import Flask, request, redirect, session, url_for, render_template
 import json
 import conspiracy
