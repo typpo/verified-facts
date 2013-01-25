@@ -2,33 +2,29 @@
 import random
 import sys
 import re
-import inflect
-
-language = inflect.engine()
 
 VARS = {
+'malady': 'cancer, bipolar disorder, chronic pain, depression, mad cow disease, diabetes, autism, ulcers, allergies, Celiac\'s disease, Alzheimer\'s, Parkinson\'s, heart disease, restless leg syndrome, schizophrenia, ADHD, high blood pressure, chronic fatigue syndrome, Black Lung disease, myopia, age spots, melanoma, breast cancer, varicose veins, balding, hyperpigmentation of the skin, albinism, cataracts, dwarfism, acne, joint pain, premature aging, OCD, amnesia, leukemia, nymphomania, pinworms, cholera, sickle cell anemia, Lyme disease, Rocky Mountain spotted fever, AIDS,',
 
-'malady': 'cancer, back pain, bipolar disorder, depression, decreased intelligence, foot fungus, mad cow disease, diabetes, autism, ulcers, allergies, Celiac\'s disease, Alzheimer\'s, Parkinson\'s, heart disease, restless leg syndrome, schizophrenia, ADHD, high blood pressure, chronic fatigue syndrome, Black Lung disease, myopia, age spots, melanoma, breast cancer, varicose veins, balding, anatidaephobia, paranoia, hyperpigmentation of the skin, albinism, cataracts, cavities, dwarfism, acne, joint pain, premature aging, fibrodysplasia ossificans progressiva, OCD, prosopagnosia, amnesia, leukemia, nymphomania, pinworms, cholera, sickle cell anemia, Lyme disease, Rocky Mountain spotted fever, ',
-
-'dangerous_noun': 'oil, guns, Ebola Virus, fluorine, alternative medicine, chemtrails, fluoride, GMOs, pesticides, nuclear power, nuclear isotopes, nuclear weapons, aspartame, DDT, trace heavy metals, mercury, lead, radioactive isotopes, arsenic, vaccines, E. coli, salmonella, petrochemicals, cocaine, crack, meth, speed, pot, marijuana, angel dust, morphine, LSD, MDMA, freon, tetrafluorocarbon, selective serotonin reuptake inhibitors, ',
+'dangerous_noun': 'oil, guns, Ebola, fluorine, alternative medicine, chemtrails, fluoride, GMOs, pesticides, nuclear power, nuclear isotopes, nuclear weapons, aspartame, DDT, trace heavy metals, mercury, lead, radioactive isotopes, arsenic, vaccines, E. coli, salmonella, petrochemicals, cocaine, crack, meth, speed, pot, marijuana, angel dust, morphine, LSD, MDMA, freon, tetrafluorocarbon, selective serotonin reuptake inhibitors, ',
 
 'era': 'the Clinton years, the Bush wars, the Bush administration, the Reagan administration, the Carter administration, the Nixon administration, the Great Depression, the Great Recession, the American Revolution, the Vietnam War, WWI, WWII, the Civil War, ancient Rome, the Cold War, the Industrial Revolution, Obama\'s childhood years in Kenya,',
 
-'abstract_noun': 'sex, money, the media, unemployment, Islam, Judaism, the stock market, old age, diversity, communism, socialism, AIDS, manchurian candidates, election polls, the bible, poverty, peace, welfare, freedom from oppression, tax rebates, the gay agenda, gay marriage, "equality", the economy, feminism, global warming, religious belief, eugenics,',
+'abstract_noun': 'sex, money, hedonism, the media, unemployment, Islam, Judaism, the stock market, old age, "diversity", communism, socialism, election polls, the bible, poverty, welfare, gay marriage, "equality", the economy, feminism, global warming, religious belief, eugenics,',
 
 'government_org': 'the FBI, the CIA, the Taliban, NASA, the Feds, the Federal Reserve, DARPA, the USGS, the EPA, the FDA, NATO, FEMA, the KGB,',
 
 'company': 'Google, Apple, Exxon, Halliburton, BP, Texaco, the Lehman Brothers, Facebook, Spotify, Microsoft, Tencent, Monsanto, Nestle, Kroger, Unilever, Adobe, IBM',
 
-'country': 'the USA, the UK, Russia, Iran, Iraq, Afghanistan, Germany, Egypt, Kenya, Yemen, Somalia, China, Switzerland, France, North Korea, South Korea, Japan, Saudi Arabia, Qatar, Kurdistan',
+'country': 'the USA, the UK, Russia, Iran, Iraq, Afghanistan, Germany, Egypt, Kenya, Yemen, Somalia, China, Switzerland, France, North Korea, South Korea, Japan, Saudi Arabia, the United Arab Emirates, Kurdistan',
 
-'organization': 'Republicans, Democrats, Communists, Socialists, the KKK, Libertarians, Occupy Wall Street, Wall Street, Black Panthers, the Tea Party, Big Oil, Big Pharma, the Knights Templar, Freemasons, Illuminati, Opus Dei, Skull and Bones, Shadow Government, the Mafia, the Mob, Jews, Catholics, a group of Atheists, Reptilians, the media, Islamic Fundamentalists, Christian Fundamentalists, minorities, Wikileaks, the Founding Fathers, Fox News, Scientology, Anonymous, Monsanto, Obama Birthers, illegal aliens,',
+'organization': 'Republicans, Democrats, Communists, Socialists, the KKK, Libertarians, Occupy Wall Street, Wall Street, The Black Panthers, The Tea Party, Big Oil, Big Pharma, the Knights Templar, Freemasons, Illuminati, Opus Dei, Skull and Bones, Shadow Government, the Mafia, the Mob, Jews, Catholics, the Atheist establishment, Reptilians, the media, Islamic Fundamentalists, Christian Fundamentalists, minorities, Wikileaks, Fox News, Scientology, Anonymous, Monsanto, Obama Birthers, illegal aliens,',
 
 'event': 'the moon landing, the Holocaust, the JFK assassination, WW2, WW1, the Vietnam War, the MLK assassination, the Manhattan Project, Occupy Wall Street, the Bolshevik revolution, the 2008 financial crash, the US Election of 2000, Fukushima, the Deepwater Horizon spill, the war in Iraq, the Black Plague, the American Revolution, Watergate, Gulf oil spill, 9/11, the birth of Obama, the Anthrax scare, ',
 
-'place': 'Area 51, the White House, the Moon, the Alaskan Wilderness, Israel, North Korea, Russia, Roswell, Chernobyl, Fukushima, Three Mile Island, the San Andreas Fault, East Germany, Northern Ireland, ocean trenches, the Salt Caverns, Yucca Mountain, Iraq, Iran, Afghanistan, the International Space Station, Mars, AMES research center, Auschwitz, Thomas Jefferson\'s home, the Vatican, Obama\'s birthplace, the former site of 7 World Trade Center',
+'place': 'Area 51, the White House, the Moon, the Alaskan Wilderness, Israel, North Korea, Russia, Roswell, Chernobyl, Fukushima, Three Mile Island, the San Andreas Fault, East Germany, Northern Ireland, ocean trenches, the Salt Caverns, Yucca Mountain, Iraq, Iran, Afghanistan, AMES research center, Auschwitz, Thomas Jefferson\'s home, the Vatican, Obama\'s birthplace, the former site of 7 World Trade Center',
 
-'famous_person': 'Hugo Chavez, Barack Obama, Arnold Schwarzenegger, Vladimir Putin, Osama Bin Laden, George W Bush, Bill Clinton, Madonna, JFK, J Edgar Hoover, Pink, A Beastie Boy, Kim Jong Un, Hitler, Abraham Lincoln, George Clooney, Lady Gaga, Marilyn Monroe, Dick Cheney, Karl Rove, Glenn Beck, Saddam Hussein, Mahmoud Ahmadinejad, Fidel Castro, Kim Jong Il, Kim Il Sung, Julian Assange, Al Gore, the Reverend Al Sharpton, the Reverend Jesse Jackson, Michelle Obama, Billy Graham, Bill O\'Reilly, Oprah, Tom Cruise, Jack Chick, Larry Page, Psy, ',
+'famous_person': 'Hugo Chavez, Barack Obama, Arnold Schwarzenegger, Vladimir Putin, George W Bush, Bill Clinton, Pink, A Beastie Boy, Kim Jong Un, George Clooney, Lady Gaga, Madonna, Dick Cheney, Karl Rove, Glenn Beck, Saddam Hussein, Mahmoud Ahmadinejad, Julian Assange, Al Gore, The Reverend Al Sharpton, The Reverend Jesse Jackson, Michelle Obama, Billy Graham, Bill O\'Reilly, Oprah, Tom Cruise, Larry Page, Psy,',
 
 }
 
@@ -55,7 +51,7 @@ f.close()
 for x in VARS:
   VARS[x] = filter(lambda x: x.strip() != '', map(lambda x: x.strip(), VARS[x].split(',')))
 
-PLURALIZE_CATEGORIES = set(['has/have', 'is/are', 'was/were', 'it/them'])
+PLURALIZE_CATEGORIES = set(['has/have', 'is/are', 'was/were', 'it/them', 'its/their'])
 OTHER_SPECIAL_CATEGORIES = set(['it/them'])
 
 def process(statement, required_mappings={}):
@@ -136,6 +132,7 @@ def generate_paragraph():
     ok = False
     for i in range(0, 100):
       candidate_statement = random.choice(evidence_lines)
+      # TODO figure out disconnects
       for key in previous_mappings:
         chaining_search_str = u'{{%s}}' % (key)
         if candidate_statement.find(chaining_search_str) > -1 \
@@ -157,6 +154,5 @@ def generate_paragraph():
       lines.append(unused_filler())
     """
   lines.append(random.choice(warning_lines))
+  lines = map(lambda x: x[0].upper() + x[1:], lines)   # capitalize first letter
   return ''.join(lines)
-
-#print process('{{company}} clearly {{has/have}} a secret deal with Youtube-- all videos highlighting its abuses in {{country}} are taken down without explanation.')

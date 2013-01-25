@@ -1,6 +1,7 @@
 from flask import Flask, request, redirect, session, url_for, render_template
 import json
 import conspiracy
+import random
 
 app = Flask(__name__)
 app.secret_key = 'not a secret key'
@@ -9,7 +10,14 @@ app.secret_key = 'not a secret key'
 def index():
   paragraph = conspiracy.generate_paragraph()
   paragraph = paragraph.replace('\n', '<br><br>')
-  return render_template('index.html', text=paragraph)
+  imgurl = random.choice([
+    "http://img703.imageshack.us/img703/5281/doent.gif",
+    "http://upload.wikimedia.org/wikipedia/commons/thumb/2/28/70-%D0%BC_%D0%B0%D0%BD%D1%82%D0%B5%D0%BD%D0%BD%D0%B0_%D0%9F-2500_(%D0%A0%D0%A2-70).jpg/220px-70-%D0%BC_%D0%B0%D0%BD%D1%82%D0%B5%D0%BD%D0%BD%D0%B0_%D0%9F-2500_(%D0%A0%D0%A2-70).jpg",
+    "http://www.windows2universe.org/sun/images/sunspots_max_min_sm.jpg",
+    "http://www.handsonuniverse.org/activities/whatisit/w-img/SolSysFig.gif",
+    "http://alexis.m2osw.com/images/plaque_pioneer.jpg",
+  ])
+  return render_template('index.html', text=paragraph, imgurl=imgurl)
 
 """
 @app.route("/path/<query>")
