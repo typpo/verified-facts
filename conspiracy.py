@@ -67,115 +67,117 @@ def demote_precedence_sort(a, b):
     bscore = -1
   return ascore - bscore
 
-def getwordchoice(m, category, previous_word_choice, previously_used, required_mappings):
-  if previous_word_choice and category in PLURALIZE_CATEGORIES:
-    singular, plural = category.split('/')
-    return (plural if previous_word_choice[-1] == 's' else singular, required_mappings)
-  elif category in required_mappings and len(required_mappings[category]) > 0:
-    # chained sentence
-    word_choice = required_mappings[category][0]
-    if word_choice != previous_word_choice:    # don't repeat anything
-      required_mappings[category].pop(0)
-      #required_mappings[category].append(word_choice)
-      return word_choice, required_mappings
+class ConspiracyGenerator:
 
-  for i in range(0, 20):
-    word_choice = random.choice(VARS[category])
-    if m not in previously_used or word_choice != previously_used[category]:
-      break
-  return word_choice, required_mappings
+  def getwordchoice(self, m, category, previous_word_choice, previously_used, required_mappings):
+    if previous_word_choice and category in PLURALIZE_CATEGORIES:
+      singular, plural = category.split('/')
+      return (plural if previous_word_choice[-1] == 's' else singular, required_mappings)
+    elif category in required_mappings and len(required_mappings[category]) > 0:
+      # chained sentence
+      word_choice = required_mappings[category][0]
+      if word_choice != previous_word_choice:    # don't repeat anything
+        required_mappings[category].pop(0)
+        #required_mappings[category].append(word_choice)
+        return word_choice, required_mappings
 
-def process(statement, required_mappings={}):
-  # If a mapping is specified in required_mappings, we will prefer that
-  # mapping in this statement
-  previously_used = {}
-  registers = {}
-  regex = re.compile('({{.*?}})')
-  ms = regex.findall(statement)
-
-  previous_word_choice = None
-  for m in ms:
-    m = unicode(m)
-    category = m.replace('{{', '').replace('}}', '')
-    if category[-1].isnumeric():
-      register_number = int(category[-1])
-      #register_key = category[:-1]
-      category = category[:-1]   # adjust category to canonical form
-      registers.setdefault(category, [])
-      register_values = registers[category]
-      if len(register_values) < register_number:
-        # New register input
-        # TODO we're trusting the writer to only use increasing registers
-        # TODO make sure we don't repeat any register
-        # TODO combine with below
-        word_choice, required_mappings = getwordchoice(m, category, \
-                                          previous_word_choice, previously_used, required_mappings)
-        registers[category].append(word_choice)
-      else:
-        # old register input, this is just a lookup
-        word_choice = register_values[register_number - 1]
-    else:
-      word_choice, required_mappings = getwordchoice(m, category, \
-                                       previous_word_choice, previously_used, required_mappings)
-
-    replace_pattern = re.compile(m)
-    previous_word_choice = previously_used[category] = word_choice
-    if category not in PLURALIZE_CATEGORIES and \
-       category not in OTHER_SPECIAL_CATEGORIES:   # we don't want matches based on these special keywords
-      required_mappings.setdefault(category, [])
-      required_mappings[category].append(word_choice)
-    statement = replace_pattern.sub(word_choice, statement, 1)
-  return statement, required_mappings
-
-def generate_paragraph():
-  used_filler = set()
-  def unused_filler():
     for i in range(0, 20):
-      filler_candidate = random.choice(filler_lines)
-      if filler_candidate not in used_filler:
+      word_choice = random.choice(VARS[category])
+      if m not in previously_used or word_choice != previously_used[category]:
         break
-    used_filler.add(filler_candidate)
-    return filler_candidate
+    return word_choice, required_mappings
 
-  lines = []
-  intro_statement, previous_mappings = process(random.choice(intro_lines))
-  print intro_statement, previous_mappings
-  lines.append(intro_statement)
-  used_evidence = set()  # don't repeat evidence lines
-  for num_evidence in range(0, 3):
-    print '------------------------------------'
-    # choose an evidence statement that contains some linkage to intro statement
-    ok = False
-    for i in range(0, 100):
-      candidate_statement = random.choice(evidence_lines)
-      # TODO figure out disconnects
-      # TODO prefer some categories in previous_mappings over others.
-      # eg. country should match more than abstract_noun
-      possible_linked_categories = previous_mappings.keys()
-      random.shuffle(possible_linked_categories)
-      possible_linked_categories = sorted(possible_linked_categories, demote_precedence_sort)
-      print 'considering categories:', possible_linked_categories
-      for key in possible_linked_categories:
-        chaining_search_str = u'{{%s}}' % (key)
-        if candidate_statement.find(chaining_search_str) > -1 \
-            and candidate_statement not in used_evidence:
-          ok = True
-      if ok: break
-    if not ok:
-      lines.append('**** chaining failed, could not find any key match in', previous_mappings)
-    used_evidence.add(candidate_statement)
-    evidence_statement, previous_mappings = process(candidate_statement, previous_mappings)
-    print evidence_statement, previous_mappings
+  def process(self, statement, required_mappings):
+    # If a mapping is specified in required_mappings, we will prefer that
+    # mapping in this statement
+    previously_used = {}
+    registers = {}
+    regex = re.compile('({{.*?}})')
+    ms = regex.findall(statement)
 
-    lines.append(evidence_statement)
-    if random.random() > .4:
-      lines.append(unused_filler())
-    """
-    if random.random() > .75:
-      lines.append(unused_filler())
-    if random.random() > .95:
-      lines.append(unused_filler())
-    """
-  lines.append(random.choice(warning_lines))
-  lines = map(lambda x: x[0].upper() + x[1:], lines)   # capitalize first letter
-  return ''.join(lines)
+    previous_word_choice = None
+    for m in ms:
+      m = unicode(m)
+      category = m.replace('{{', '').replace('}}', '')
+      if category[-1].isnumeric():
+        register_number = int(category[-1])
+        #register_key = category[:-1]
+        category = category[:-1]   # adjust category to canonical form
+        registers.setdefault(category, [])
+        register_values = registers[category]
+        if len(register_values) < register_number:
+          # New register input
+          # TODO we're trusting the writer to only use increasing registers
+          # TODO make sure we don't repeat any register
+          # TODO combine with below
+          word_choice, required_mappings = self.getwordchoice(m, category, \
+                                            previous_word_choice, previously_used, required_mappings)
+          registers[category].append(word_choice)
+        else:
+          # old register input, this is just a lookup
+          word_choice = register_values[register_number - 1]
+      else:
+        word_choice, required_mappings = self.getwordchoice(m, category, \
+                                         previous_word_choice, previously_used, required_mappings)
+
+      replace_pattern = re.compile(m)
+      previous_word_choice = previously_used[category] = word_choice
+      if category not in PLURALIZE_CATEGORIES and \
+         category not in OTHER_SPECIAL_CATEGORIES:   # we don't want matches based on these special keywords
+        required_mappings.setdefault(category, [])
+        required_mappings[category].append(word_choice)
+      statement = replace_pattern.sub(word_choice, statement, 1)
+    return statement, required_mappings
+
+  def generate_paragraph(self):
+    used_filler = set()
+    def unused_filler():
+      for i in range(0, 20):
+        filler_candidate = random.choice(filler_lines)
+        if filler_candidate not in used_filler:
+          break
+      used_filler.add(filler_candidate)
+      return filler_candidate
+
+    lines = []
+    intro_statement, previous_mappings = self.process(random.choice(intro_lines), {})
+    print intro_statement, previous_mappings
+    lines.append(intro_statement)
+    used_evidence = set()  # don't repeat evidence lines
+    for num_evidence in range(0, 3):
+      print '------------------------------------'
+      # choose an evidence statement that contains some linkage to intro statement
+      ok = False
+      for i in range(0, 100):
+        candidate_statement = random.choice(evidence_lines)
+        # TODO figure out disconnects
+        # TODO prefer some categories in previous_mappings over others.
+        # eg. country should match more than abstract_noun
+        possible_linked_categories = previous_mappings.keys()
+        random.shuffle(possible_linked_categories)
+        possible_linked_categories = sorted(possible_linked_categories, demote_precedence_sort)
+        print 'considering categories:', possible_linked_categories
+        for key in possible_linked_categories:
+          chaining_search_str = u'{{%s}}' % (key)
+          if candidate_statement.find(chaining_search_str) > -1 \
+              and candidate_statement not in used_evidence:
+            ok = True
+        if ok: break
+      if not ok:
+        lines.append('**** chaining failed, could not find any key match in', previous_mappings)
+      used_evidence.add(candidate_statement)
+      evidence_statement, previous_mappings = self.process(candidate_statement, previous_mappings)
+      print evidence_statement, previous_mappings
+
+      lines.append(evidence_statement)
+      if random.random() > .4:
+        lines.append(unused_filler())
+      """
+      if random.random() > .75:
+        lines.append(unused_filler())
+      if random.random() > .95:
+        lines.append(unused_filler())
+      """
+    lines.append(random.choice(warning_lines))
+    lines = map(lambda x: x[0].upper() + x[1:], lines)   # capitalize first letter
+    return ''.join(lines)

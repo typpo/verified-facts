@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from flask import Flask, request, redirect, session, url_for, render_template
+from conspiracy import ConspiracyGenerator
 import json
-import conspiracy
 import random
 
 app = Flask(__name__)
@@ -9,7 +9,8 @@ app.secret_key = 'not a secret key'
 
 @app.route("/")
 def index():
-  paragraph = conspiracy.generate_paragraph()
+  cg = ConspiracyGenerator()
+  paragraph = cg.generate_paragraph()
   paragraph = paragraph.replace('\n', '<br><br>')
   imgurl = random.choice([
     "http://img703.imageshack.us/img703/5281/doent.gif",
