@@ -65,7 +65,25 @@ def demote_precedence_sort(a, b):
     bscore = LINKED_CATEGORIES_DEMOTE_PRECEDENCE.index(b)
   except ValueError:
     bscore = -1
-  return bscore - ascore
+  return ascore - bscore
+
+def getwordchoice(m, category, previous_word_choice, previously_used, required_mappings):
+  if previous_word_choice and category in PLURALIZE_CATEGORIES:
+    singular, plural = category.split('/')
+    return (plural if previous_word_choice[-1] == 's' else singular, required_mappings)
+  elif category in required_mappings and len(required_mappings[category]) > 0:
+    # chained sentence
+    word_choice = required_mappings[category][0]
+    if word_choice != previous_word_choice:    # don't repeat anything
+      required_mappings[category].pop(0)
+      #required_mappings[category].append(word_choice)
+      return word_choice, required_mappings
+
+  for i in range(0, 20):
+    word_choice = random.choice(VARS[category])
+    if m not in previously_used or word_choice != previously_used[category]:
+      break
+  return word_choice, required_mappings
 
 def process(statement, required_mappings={}):
   # If a mapping is specified in required_mappings, we will prefer that
@@ -75,46 +93,30 @@ def process(statement, required_mappings={}):
   regex = re.compile('({{.*?}})')
   ms = regex.findall(statement)
 
-  def getwordchoice(category, previous_word_choice):
-    if previous_word_choice and category in PLURALIZE_CATEGORIES:
-      singular, plural = category.split('/')
-      return plural if previous_word_choice[-1] == 's' else singular
-    elif category in required_mappings and len(required_mappings[category]) > 0:
-      # chained sentence
-      word_choice = required_mappings[category][0]
-      if word_choice != previous_word_choice:    # don't repeat anything
-        # move to back
-        required_mappings[category].pop(0)
-        required_mappings[category].append(word_choice)
-        return word_choice
-
-    for i in range(0, 20):
-      word_choice = random.choice(VARS[category])
-      if m not in previously_used or word_choice != previously_used[category]:
-        break
-    return word_choice
-
   previous_word_choice = None
   for m in ms:
     m = unicode(m)
     category = m.replace('{{', '').replace('}}', '')
     if category[-1].isnumeric():
       register_number = int(category[-1])
-      register_key = category[:-1]
-      registers.setdefault(register_key, [])
-      register_values = registers[register_key]
+      #register_key = category[:-1]
+      category = category[:-1]   # adjust category to canonical form
+      registers.setdefault(category, [])
+      register_values = registers[category]
       if len(register_values) < register_number:
         # New register input
-        # TODO we're trusting the user to only use increasing registers
+        # TODO we're trusting the writer to only use increasing registers
         # TODO make sure we don't repeat any register
-        # TODO not supporting same_* when using numbers
-        word_choice = getwordchoice(register_key, previous_word_choice)
-        registers[register_key].append(word_choice)
+        # TODO combine with below
+        word_choice, required_mappings = getwordchoice(m, category, \
+                                          previous_word_choice, previously_used, required_mappings)
+        registers[category].append(word_choice)
       else:
         # old register input, this is just a lookup
         word_choice = register_values[register_number - 1]
     else:
-      word_choice = getwordchoice(category, previous_word_choice)
+      word_choice, required_mappings = getwordchoice(m, category, \
+                                       previous_word_choice, previously_used, required_mappings)
 
     replace_pattern = re.compile(m)
     previous_word_choice = previously_used[category] = word_choice
@@ -141,6 +143,7 @@ def generate_paragraph():
   lines.append(intro_statement)
   used_evidence = set()  # don't repeat evidence lines
   for num_evidence in range(0, 3):
+    print '------------------------------------'
     # choose an evidence statement that contains some linkage to intro statement
     ok = False
     for i in range(0, 100):
@@ -151,6 +154,7 @@ def generate_paragraph():
       possible_linked_categories = previous_mappings.keys()
       random.shuffle(possible_linked_categories)
       possible_linked_categories = sorted(possible_linked_categories, demote_precedence_sort)
+      print 'considering categories:', possible_linked_categories
       for key in possible_linked_categories:
         chaining_search_str = u'{{%s}}' % (key)
         if candidate_statement.find(chaining_search_str) > -1 \
