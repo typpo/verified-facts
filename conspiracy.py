@@ -34,18 +34,22 @@ VARS = {
 
 f = open('introductions', 'r')
 intro_lines = filter(lambda x: x.strip() != '', f.readlines())
+intro_lines = map(lambda x: x.decode('utf-8'), intro_lines)
 f.close()
 
 f = open('evidence', 'r')
 evidence_lines = filter(lambda x: x.strip() != '', f.readlines())
+evidence_lines = map(lambda x: x.decode('utf-8'), evidence_lines)
 f.close()
 
 f = open('warnings', 'r')
 warning_lines = filter(lambda x: x.strip() != '', f.readlines())
+warning_lines = map(lambda x: x.decode('utf-8'), warning_lines)
 f.close()
 
 f = open('filler', 'r')
 filler_lines = filter(lambda x: x.strip() != '', f.readlines())
+filler_lines = map(lambda x: x.decode('utf-8'), filler_lines)
 f.close()
 
 for x in VARS:
@@ -113,42 +117,46 @@ def random_intro():
 def random_evidence():
   return process(random.choice(evidence_lines))[0]
 
-used_filler = set()
-def unused_filler():
-  for i in range(0, 20):
-    filler_candidate = random.choice(filler_lines)
-    if filler_candidate not in used_filler:
-      break
-  used_filler.add(filler_candidate)
-  return filler_candidate
+def generate_paragraph():
+  used_filler = set()
+  def unused_filler():
+    for i in range(0, 20):
+      filler_candidate = random.choice(filler_lines)
+      if filler_candidate not in used_filler:
+        break
+    used_filler.add(filler_candidate)
+    return filler_candidate
 
-intro_statement, previous_mappings = process(random.choice(intro_lines))
-print intro_statement
-used_evidence = set()  # don't repeat evidence lines
-for num_evidence in range(0, 3):
-  # choose an evidence statement that contains some linkage to intro statement
-  ok = False
-  for i in range(0, 100):
-    candidate_statement = random.choice(evidence_lines).decode('utf-8')
-    for key in previous_mappings:
-      chaining_search_str = '{{%s}}' % (key)
-      if candidate_statement.find(chaining_search_str) > -1 \
-          and candidate_statement not in used_evidence:
-        ok = True
-    if ok: break
-  if not ok:
-    print '**** chaining failed, could not find any key match in', previous_mappings
-  used_evidence.add(candidate_statement)
-  evidence_statement, previous_mappings = process(candidate_statement, previous_mappings)
+  lines = []
+  intro_statement, previous_mappings = process(random.choice(intro_lines))
+  lines.append(intro_statement)
+  used_evidence = set()  # don't repeat evidence lines
+  for num_evidence in range(0, 3):
+    # choose an evidence statement that contains some linkage to intro statement
+    ok = False
+    for i in range(0, 100):
+      candidate_statement = random.choice(evidence_lines)
+      for key in previous_mappings:
+        chaining_search_str = u'{{%s}}' % (key)
+        if candidate_statement.find(chaining_search_str) > -1 \
+            and candidate_statement not in used_evidence:
+          ok = True
+      if ok: break
+    if not ok:
+      lines.append('**** chaining failed, could not find any key match in', previous_mappings)
+    used_evidence.add(candidate_statement)
+    evidence_statement, previous_mappings = process(candidate_statement, previous_mappings)
 
-  print evidence_statement
-  if random.random() > .4:
-    print unused_filler()
-  """
-  if random.random() > .75:
-    print unused_filler()
-  if random.random() > .95:
-    print unused_filler()
-  """
+    lines.append(evidence_statement)
+    if random.random() > .4:
+      lines.append(unused_filler())
+    """
+    if random.random() > .75:
+      lines.append(unused_filler())
+    if random.random() > .95:
+      lines.append(unused_filler())
+    """
+  lines.append(random.choice(warning_lines))
+  return ''.join(lines)
 
-print random.choice(warning_lines)
+#print process('{{company}} clearly {{has/have}} a secret deal with Youtube-- all videos highlighting its abuses in {{country}} are taken down without explanation.')
