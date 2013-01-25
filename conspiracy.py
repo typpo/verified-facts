@@ -55,7 +55,7 @@ OTHER_SPECIAL_CATEGORIES = set(['it/them'])
 
 # Try not to link on these categories.  Without something like this you tend to get non-sequiturs, linked
 # by the object of sentences.
-LINKED_CATEGORIES_DEMOTE_PRECEDENCE = ['malady', 'dangerous_noun', 'abstract_noun']
+LINKED_CATEGORIES_DEMOTE_PRECEDENCE = ['malady', 'dangerous_noun', 'abstract_noun', 'era']
 def demote_precedence_sort(a, b):
   try:
     ascore = LINKED_CATEGORIES_DEMOTE_PRECEDENCE.index(a)
