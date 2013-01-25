@@ -50,7 +50,8 @@ f.close()
 for x in VARS:
   VARS[x] = filter(lambda x: x.strip() != '', map(lambda x: x.strip(), VARS[x].split(',')))
 
-RESERVED_CATEGORIES = set(['has/have', 'is/are', 'was/were'])
+PLURALIZE_CATEGORIES = set(['has/have', 'is/are', 'was/were', 'it/them'])
+OTHER_SPECIAL_CATEGORIES = set(['it/them'])
 
 def process(statement, required_mappings={}):
   # If a mapping is specified in required_mappings, we will prefer that
@@ -62,14 +63,10 @@ def process(statement, required_mappings={}):
   ms = regex.findall(statement)
 
   def getwordchoice(category, previous_word_choice):
-    if previous_word_choice and category in RESERVED_CATEGORIES:
-      if category == 'hashave':
-        return language.plural_verb('has', previous_word_choice)
-      if category == 'isare':
-        return language.plural_verb('is', previous_word_choice)
-      if category == 'waswere':
-        return language.plural_verb('was', previous_word_choice)
-    if category in required_mappings and len(required_mappings[category]) > 0:
+    if previous_word_choice and category in PLURALIZE_CATEGORIES:
+      singular, plural = category.split('/')
+      return plural if previous_word_choice[-1] == 's' else singular
+    elif category in required_mappings and len(required_mappings[category]) > 0:
       # chained sentence
       word_choice = required_mappings[category][0]
       required_mappings[category].pop(0)
