@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Directory - Verified Facts{% endblock %}
+{% block content %}
+<div class="hero">
+  <p class="title">Verified Facts Article Directory</p>
+<div id="results" class="results">
+  <ul>
+    {% for subject in subjects %}
+    <li><a href="/">{{subject}}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

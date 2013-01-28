@@ -16,6 +16,15 @@ def index():
   return render_template('index.html', subject=subject, text=paragraph,\
       imgurl=imgurl, citations=citations)
 
+@app.route("/verification")
+def verification():
+  return render_template('verification.html')
+
+@app.route("/directory")
+def directory():
+  return render_template('directory.html', \
+      subjects=ConspiracyGenerator().get_all_subjects())
+
 """
 @app.route("/path/<query>")
 def path(query):

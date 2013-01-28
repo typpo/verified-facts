@@ -3,7 +3,7 @@
 	<head>
 		{% block head %}
 		<meta charset="utf-8">
-		<title>{% block title %}The Shocking Truth{% endblock %}</title>
+		<title>{% block title %}Verified Facts{% endblock %}</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="description" content="{% block description %}{% endblock %}">
     <!--
@@ -16,6 +16,7 @@
       body {
         width: 500px;
         margin: 0 auto;
+        margin-top: 30px;
         background-color: #000;
         color: #ccc;
       }
@@ -28,15 +29,42 @@
       .results {
         font-size: 18px;
       }
+      .topnav {
+        width: 100%;
+        font-size: 16px;
+        color: #ccc;
+        margin: 10px;
+      }
+      .topnav a {
+        color: #ccc;
+      }
       div.citations {
         font-size: 12px;
       }
 
+      .copyright {
+        color: #ccc;
+        font-size: 10px;
+      }
     </style>
 	</head>
 	<body>
+    <div class="topnav">
+      Verified Facts
+      <br/>
+      <a href="/">Home</a>
+      &middot;
+      <a href="/verification">Verification Process</a>
+      &middot;
+      <a href="/directory">Information Directory</a>
+      &middot;
+      <a href="#">Contact</a>
+    </div>
 		<div class="container">
 			{% block content %}{% endblock %}
 		</div>
+    <div class="copyright">
+      &copy; 2013 Verified Facts
+    </div>
 	</body>
 </html>

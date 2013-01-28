@@ -99,6 +99,13 @@ class ConspiracyGenerator:
     for item, count in evidence_counts:
       print '  * %s - %d' % (item, count)
 
+  def get_all_subjects(self):
+    ret = []
+    for x in VARS:
+      ret.extend(VARS[x])
+    ret.sort()
+    return ret
+
   def getwordchoice(self, m, category, previous_word_choice, previously_used, required_mappings):
     if previous_word_choice and category in PLURALIZE_CATEGORIES:
       singular, plural = category.split('/')
