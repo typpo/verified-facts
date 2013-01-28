@@ -140,22 +140,33 @@ class ConspiracyGenerator:
           # New register input
           # TODO we're trusting the writer to only use increasing registers
           # TODO combine with below
-          # FIXME sentence with {{country1}} and {{country2}}
-          word_choice, required_mappings = self.getwordchoice(m, category, \
-                                            previous_word_choice, previously_used, required_mappings)
+          for i in range(0, 30):
+            word_choice, required_mappings = self.getwordchoice(m, category, \
+                                              previous_word_choice, previously_used, required_mappings)
+            # registers must be unique - TODO this can be done more
+            # efficiently, but doing it this way for now
+            ok = True
+            for reg_val in register_values:
+              if word_choice == reg_val:
+                ok = False
+                break
+            if ok:
+              break
           registers[category].append(word_choice)
+          print 'put %s from cat %s in register %d' % (word_choice, category, register_number)
         else:
           # old register input, this is just a lookup
           word_choice = register_values[register_number - 1]
+          print 'got %s from cat %s in register %d' % (word_choice, category, register_number)
       else:
         word_choice, required_mappings = self.getwordchoice(m, category, \
                                          previous_word_choice, previously_used, required_mappings)
 
-      replace_pattern = re.compile(m)
       previous_word_choice = previously_used[category] = word_choice
       if category not in PLURALIZE_CATEGORIES:   # we don't want matches based on these special keywords
         required_mappings.setdefault(category, [])
         required_mappings[category].append(word_choice)
+      replace_pattern = re.compile(m)
       statement = replace_pattern.sub(word_choice, statement, 1)
       chosen_words.append(word_choice)
     return statement, required_mappings, chosen_words
