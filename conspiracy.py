@@ -54,6 +54,9 @@ def demote_precedence_sort(a, b):
     bscore = -1
   return ascore - bscore
 
+def capitalize_first(x):
+  return x[0].upper() + x[1:]
+
 class ConspiracyGenerator:
 
   def getwordchoice(self, m, category, previous_word_choice, previously_used, required_mappings):
@@ -148,6 +151,7 @@ class ConspiracyGenerator:
     lines = []
     chosen_words_map = {}
     intro_statement, previous_mappings, chosen_words = self.process(random.choice(intro_lines), {})
+    first_subject = chosen_words[0]
     self.add_to_chosen_words_map(chosen_words_map, chosen_words)
     print intro_statement, previous_mappings
     lines.append(intro_statement)
@@ -180,10 +184,14 @@ class ConspiracyGenerator:
         lines.append(unused_filler())
 
     lines.append(random.choice(warning_lines))
-    lines = map(lambda x: x[0].upper() + x[1:], lines)   # capitalize first letter
+    lines = map(capitalize_first, lines)   # capitalize first letter
     lines = ''.join(lines)
 
     # determine the subject
     subject = sorted(chosen_words_map.iteritems(), key=operator.itemgetter(1), reverse=True)[0][0]
+    if subject != first_subject:
+      subject = '%s and %s' % (capitalize_first(first_subject), capitalize_first(subject))
+    else:
+      subject = capitalize_first(subject)
 
     return subject, lines
