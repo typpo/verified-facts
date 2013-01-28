@@ -35,6 +35,11 @@ citation_lines = filter(lambda x: x.strip() != '', f.readlines())
 citation_lines = map(lambda x: x.decode('utf-8'), citation_lines)
 f.close()
 
+f = open('images', 'r')
+imageurls = filter(lambda x: x.strip() != '', f.readlines())
+imageurls = map(lambda x: x.decode('utf-8'), imageurls)
+f.close()
+
 for x in VARS:
   VARS[x] = filter(lambda x: x.strip() != '', map(lambda x: x.strip(), VARS[x].split(',')))
 
@@ -209,6 +214,7 @@ class ConspiracyGenerator:
         if ok: break
       if not ok:
         lines.append('**** chaining failed, could not find any key match in', previous_mappings)
+        return self.generate_paragraph()
       used_evidence.add(candidate_statement)
       evidence_statement, previous_mappings, chosen_words = self.process(candidate_statement, previous_mappings)
       self.add_to_chosen_words_map(chosen_words_map, chosen_words)
@@ -229,4 +235,7 @@ class ConspiracyGenerator:
     else:
       subject = capitalize_first(subject)
 
-    return subject, lines
+    # choose image
+    imageurl = random.choice(imageurls)
+
+    return subject, lines, imageurl
