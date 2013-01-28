@@ -47,6 +47,11 @@ filler_lines = filter(lambda x: x.strip() != '', f.readlines())
 filler_lines = map(lambda x: x.decode('utf-8'), filler_lines)
 f.close()
 
+f = open('citations', 'r')
+citation_lines = filter(lambda x: x.strip() != '', f.readlines())
+citation_lines = map(lambda x: x.decode('utf-8'), citation_lines)
+f.close()
+
 for x in VARS:
   VARS[x] = filter(lambda x: x.strip() != '', map(lambda x: x.strip(), VARS[x].split(',')))
 
@@ -108,8 +113,8 @@ class ConspiracyGenerator:
         if len(register_values) < register_number:
           # New register input
           # TODO we're trusting the writer to only use increasing registers
-          # TODO make sure we don't repeat any register
           # TODO combine with below
+          # FIXME sentence with {{country1}} and {{country2}}
           word_choice, required_mappings = self.getwordchoice(m, category, \
                                             previous_word_choice, previously_used, required_mappings)
           registers[category].append(word_choice)
@@ -128,6 +133,19 @@ class ConspiracyGenerator:
         required_mappings[category].append(word_choice)
       statement = replace_pattern.sub(word_choice, statement, 1)
     return statement, required_mappings
+
+  def generate_citations(self, n=2):
+    lines = []
+    used = set()
+    for i in range(0, n):
+      line = random.choice(citation_lines)
+      for j in range(0, 100):
+        if line not in used:
+          break
+        line = random.choice(citation_lines)
+      lines.append(line)
+      used.add(line)
+    return lines
 
   def generate_paragraph(self):
     used_filler = set()
@@ -169,12 +187,7 @@ class ConspiracyGenerator:
       lines.append(evidence_statement)
       if random.random() > .4:
         lines.append(unused_filler())
-      """
-      if random.random() > .75:
-        lines.append(unused_filler())
-      if random.random() > .95:
-        lines.append(unused_filler())
-      """
+
     lines.append(random.choice(warning_lines))
     lines = map(lambda x: x[0].upper() + x[1:], lines)   # capitalize first letter
     return ''.join(lines)

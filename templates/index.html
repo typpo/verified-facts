@@ -11,5 +11,13 @@
 -->
   {{text|safe}}
   </p>
+  <div class="citations">
+    Sources:
+    <ol>
+      {% for citation in citations %}
+      <li>{{citation}}</li>
+      {% endfor %}
+    </ol>
+  </div>
 </div>
 {% endblock %}

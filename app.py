@@ -19,7 +19,8 @@ def index():
     "http://www.handsonuniverse.org/activities/whatisit/w-img/SolSysFig.gif",
     "http://alexis.m2osw.com/images/plaque_pioneer.jpg",
   ])
-  return render_template('index.html', text=paragraph, imgurl=imgurl)
+  citations = cg.generate_citations()
+  return render_template('index.html', text=paragraph, imgurl=imgurl, citations=citations)
 
 """
 @app.route("/path/<query>")
