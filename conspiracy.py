@@ -2,30 +2,12 @@
 import random
 import sys
 import re
+import yaml
 
-VARS = {
-'malady': 'cancer, bipolar disorder, chronic pain, depression, mad cow disease, diabetes, autism, ulcers, allergies, Celiac\'s disease, Alzheimer\'s, Parkinson\'s, heart disease, restless leg syndrome, schizophrenia, ADHD, high blood pressure, chronic fatigue syndrome, Black Lung disease, myopia, age spots, melanoma, breast cancer, balding, hyperpigmentation of the skin, albinism, cataracts, dwarfism, acne, joint pain, premature aging, OCD, amnesia, leukemia, nymphomania, pinworms, cholera, sickle cell anemia, Lyme disease, Rocky Mountain spotted fever, AIDS,',
-
-'dangerous_noun': 'oil, guns, Ebola, fluorine, alternative medicine, chemtrails, fluoride, GMOs, pesticides, nuclear power, nuclear isotopes, nuclear weapons, aspartame, DDT, trace heavy metals, mercury, lead, radioactive isotopes, arsenic, vaccines, E. coli, salmonella, petrochemicals, cocaine, crack, meth, speed, pot, marijuana, angel dust, morphine, LSD, MDMA, freon, tetrafluorocarbon, selective serotonin reuptake inhibitors, ',
-
-'era': 'the Clinton years, the Bush wars, the Bush administration, the Reagan administration, the Carter administration, the Nixon administration, the Great Depression, the Great Recession, the American Revolution, the Vietnam War, WWI, WWII, the Civil War, ancient Rome, the Cold War, the Industrial Revolution, Obama\'s childhood years in Kenya,',
-
-'abstract_noun': 'sex, money, hedonism, the media, unemployment, Islam, Judaism, the stock market, old age, "diversity", communism, socialism, election polls, the bible, poverty, welfare, gay marriage, "equality", the economy, feminism, global warming, religious belief, eugenics,',
-
-'government_org': 'the FBI, the CIA, NASA, the Feds, the Federal Reserve, DARPA, the USGS, the EPA, the FDA, NATO, FEMA, the KGB, the NSA, the Pentagon, the Secret Service,',
-
-'company': 'Google, Apple, Exxon, Halliburton, BP, Texaco, the Lehman Brothers, Facebook, Spotify, Microsoft, Tencent, Monsanto, Nestle, Kroger, Unilever, Adobe, IBM',
-
-'country': 'the USA, the UK, Russia, Iran, Iraq, Afghanistan, Germany, Egypt, Kenya, Yemen, Somalia, China, Switzerland, France, North Korea, South Korea, Japan, Saudi Arabia, the United Arab Emirates, Kurdistan',
-
-'organization': 'the Republicans, the Democrats, Communists, Socialists, the KKK, Libertarians, Occupy Wall Street, Wall Street, the Taliban, The Black Panthers, The Tea Party, Big Oil, Big Pharma, the Knights Templar, Freemasons, Illuminati, Opus Dei, Skull and Bones, the Shadow Government, the Mafia, the Mob, Osama bin Laden\'s descendants, Al Qaeda, the Jews, Catholics, the Atheist establishment, Reptilians, the Mainstream Media, Islamic Fundamentalists, Christian Fundamentalists, minorities, Wikileaks, Fox News, Scientology, Anonymous, Monsanto, Obama Birthers, illegal aliens,',
-
-'event': 'the moon landing, the Holocaust, the JFK assassination, WW2, WW1, the Vietnam War, the MLK assassination, the Manhattan Project, the summer 2012 popularity of Occupy Wall Street, the Bolshevik revolution, the 2008 financial crash, the US Election of 2000, Fukushima, the Deepwater Horizon spill, the war in Iraq, the Black Plague, the American Revolution, Watergate, the Gulf oil spill, 9/11, the birth of Obama, the Anthrax scare, ',
-
-'place': 'Area 51, the White House, the Moon, the Alaskan Wilderness, Israel, North Korea, Russia, Roswell, Chernobyl, Fukushima, Three Mile Island, the San Andreas Fault, East Germany, Northern Ireland, ocean trenches, the Salt Caverns, Yucca Mountain, Iraq, Iran, Afghanistan, AMES research center, Auschwitz, Thomas Jefferson\'s home, the Vatican, Obama\'s birthplace, the former site of 7 World Trade Center',
-
-'famous_person': 'Hugo Chavez, Barack Obama, Arnold Schwarzenegger, Vladimir Putin, George W Bush, Bill Clinton, A Beastie Boy, Kim Jong Un, George Clooney, Lady Gaga, Madonna, Dick Cheney, Karl Rove, Glenn Beck, Saddam Hussein, Mahmoud Ahmadinejad, Julian Assange, Al Gore, The Reverend Al Sharpton, The Reverend Jesse Jackson, Michelle Obama, Billy Graham, Bill O\'Reilly, Oprah, Tom Cruise, Larry Page, Psy,',
-}
+f = open('vars', 'r')
+vars_json = f.read()
+f.close()
+VARS = yaml.load(vars_json)  # reading yaml because it's a lenient json parser
 
 f = open('introductions', 'r')
 intro_lines = filter(lambda x: x.strip() != '', f.readlines())
