@@ -5,8 +5,8 @@
   <p class="title">Verified Facts Article Directory</p>
 <div id="results" class="results">
   <ul>
-    {% for subject in subjects %}
-    <li><a href="/">{{subject}}</a></li>
+    {% for subject, b64category in links %}
+      <li><a href="/">{{subject}}</a></li>
     {% endfor %}
   </ul>
 </div>

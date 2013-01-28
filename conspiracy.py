@@ -100,9 +100,11 @@ class ConspiracyGenerator:
       print '  * %s - %d' % (item, count)
 
   def get_all_subjects(self):
+    # Returns list of tuples of (subject, category)
     ret = []
     for x in VARS:
-      ret.extend(VARS[x])
+      extme = zip(VARS[x], x*len(VARS))
+      ret.extend(extme)
     ret.sort()
     return ret
 
@@ -196,7 +198,10 @@ class ConspiracyGenerator:
       used.add(line)
     return lines
 
-  def generate_paragraph(self):
+  def generate_paragraph(self, preset_mappings=None):
+    if not preset_mappings:
+      preset_mappings = {}  # prevent weird scoping bug
+
     used_filler = set()
     def unused_filler():
       for i in range(0, 20):
