@@ -150,9 +150,6 @@ class ConspiracyGenerator:
       ok = False
       for i in range(0, 100):
         candidate_statement = random.choice(evidence_lines)
-        # TODO figure out disconnects
-        # TODO prefer some categories in previous_mappings over others.
-        # eg. country should match more than abstract_noun
         possible_linked_categories = previous_mappings.keys()
         random.shuffle(possible_linked_categories)
         possible_linked_categories = sorted(possible_linked_categories, demote_precedence_sort)
