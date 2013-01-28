@@ -24,7 +24,7 @@ def directory():
   return render_template('directory.html', \
       links=links)
 
-@app.route("/<subject>")
+@app.route("/s/<subject>")
 def path(subject):
   subject_category = base64.b64decode(request.args.get('c'))
   preset = {}
