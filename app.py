@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from flask import Flask, request, redirect, session, url_for, render_template
-from conspiracy import ConspiracyGenerator
+from generator.conspiracy import ConspiracyGenerator
 import json
 import random
 import base64

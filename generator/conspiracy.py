@@ -1,41 +1,45 @@
 #!/usr/bin/env python
+import os
 import random
 import operator
 import sys
 import re
 import yaml
 
-f = open('vars', 'r')
+dirname, filename = os.path.split(os.path.abspath(__file__))
+content_dir = dirname + '/content/'
+
+f = open(content_dir + 'vars', 'r')
 vars_json = f.read()
 f.close()
 VARS = yaml.load(vars_json)  # reading yaml because it's a lenient json parser
 
-f = open('introductions', 'r')
+f = open(content_dir + 'introductions', 'r')
 intro_lines = filter(lambda x: x.strip() != '', f.readlines())
 intro_lines = map(lambda x: x.decode('utf-8'), intro_lines)
 f.close()
 
-f = open('evidence', 'r')
+f = open(content_dir + 'evidence', 'r')
 evidence_lines = filter(lambda x: x.strip() != '', f.readlines())
 evidence_lines = map(lambda x: x.decode('utf-8'), evidence_lines)
 f.close()
 
-f = open('warnings', 'r')
+f = open(content_dir + 'warnings', 'r')
 warning_lines = filter(lambda x: x.strip() != '', f.readlines())
 warning_lines = map(lambda x: x.decode('utf-8'), warning_lines)
 f.close()
 
-f = open('filler', 'r')
+f = open(content_dir + 'filler', 'r')
 filler_lines = filter(lambda x: x.strip() != '', f.readlines())
 filler_lines = map(lambda x: x.decode('utf-8'), filler_lines)
 f.close()
 
-f = open('citations', 'r')
+f = open(content_dir + 'citations', 'r')
 citation_lines = filter(lambda x: x.strip() != '', f.readlines())
 citation_lines = map(lambda x: x.decode('utf-8'), citation_lines)
 f.close()
 
-f = open('images', 'r')
+f = open(content_dir + 'images', 'r')
 imageurls = filter(lambda x: x.strip() != '', f.readlines())
 imageurls = map(lambda x: x.decode('utf-8'), imageurls)
 f.close()
@@ -185,9 +189,10 @@ class ConspiracyGenerator:
       chosen_words_map.setdefault(word, 0)
       chosen_words_map[word] += 1
 
-  def generate_citations(self, n=2):
+  def generate_citations(self, min=1, max=4):
     lines = []
     used = set()
+    n = random.randint(min, max)
     for i in range(0, n):
       line = random.choice(citation_lines)
       for j in range(0, 100):
