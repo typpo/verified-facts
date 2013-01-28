@@ -10,7 +10,7 @@ app.secret_key = 'not a secret key'
 @app.route("/")
 def index():
   cg = ConspiracyGenerator()
-  paragraph = cg.generate_paragraph()
+  subject, paragraph = cg.generate_paragraph()
   paragraph = paragraph.replace('\n', '<br><br>')
   imgurl = random.choice([
     "http://img703.imageshack.us/img703/5281/doent.gif",
@@ -20,7 +20,8 @@ def index():
     "http://alexis.m2osw.com/images/plaque_pioneer.jpg",
   ])
   citations = cg.generate_citations()
-  return render_template('index.html', text=paragraph, imgurl=imgurl, citations=citations)
+  return render_template('index.html', subject=subject, text=paragraph,\
+      imgurl=imgurl, citations=citations)
 
 """
 @app.route("/path/<query>")

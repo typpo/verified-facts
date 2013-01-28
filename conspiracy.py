@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import random
+import operator
 import sys
 import re
 import yaml
@@ -37,8 +38,7 @@ f.close()
 for x in VARS:
   VARS[x] = filter(lambda x: x.strip() != '', map(lambda x: x.strip(), VARS[x].split(',')))
 
-PLURALIZE_CATEGORIES = set(['has/have', 'is/are', 'was/were', 'it/them', 'its/their'])
-OTHER_SPECIAL_CATEGORIES = set(['it/them'])
+PLURALIZE_CATEGORIES = set(['has/have', 'is/are', 'was/were', 'it/them', 'its/their', '\'s/\''])
 
 # Try not to link on these categories.  Without something like this you tend to get non-sequiturs, linked
 # by the object of sentences.
@@ -78,6 +78,7 @@ class ConspiracyGenerator:
     # If a mapping is specified in required_mappings, we will prefer that
     # mapping in this statement
     previously_used = {}
+    chosen_words = []
     registers = {}
     regex = re.compile('({{.*?}})')
     ms = regex.findall(statement)
@@ -109,12 +110,17 @@ class ConspiracyGenerator:
 
       replace_pattern = re.compile(m)
       previous_word_choice = previously_used[category] = word_choice
-      if category not in PLURALIZE_CATEGORIES and \
-         category not in OTHER_SPECIAL_CATEGORIES:   # we don't want matches based on these special keywords
+      if category not in PLURALIZE_CATEGORIES:   # we don't want matches based on these special keywords
         required_mappings.setdefault(category, [])
         required_mappings[category].append(word_choice)
       statement = replace_pattern.sub(word_choice, statement, 1)
-    return statement, required_mappings
+      chosen_words.append(word_choice)
+    return statement, required_mappings, chosen_words
+
+  def add_to_chosen_words_map(self, chosen_words_map, chosen_words):
+    for word in chosen_words:
+      chosen_words_map.setdefault(word, 0)
+      chosen_words_map[word] += 1
 
   def generate_citations(self, n=2):
     lines = []
@@ -140,7 +146,9 @@ class ConspiracyGenerator:
       return filler_candidate
 
     lines = []
-    intro_statement, previous_mappings = self.process(random.choice(intro_lines), {})
+    chosen_words_map = {}
+    intro_statement, previous_mappings, chosen_words = self.process(random.choice(intro_lines), {})
+    self.add_to_chosen_words_map(chosen_words_map, chosen_words)
     print intro_statement, previous_mappings
     lines.append(intro_statement)
     used_evidence = set()  # don't repeat evidence lines
@@ -163,7 +171,8 @@ class ConspiracyGenerator:
       if not ok:
         lines.append('**** chaining failed, could not find any key match in', previous_mappings)
       used_evidence.add(candidate_statement)
-      evidence_statement, previous_mappings = self.process(candidate_statement, previous_mappings)
+      evidence_statement, previous_mappings, chosen_words = self.process(candidate_statement, previous_mappings)
+      self.add_to_chosen_words_map(chosen_words_map, chosen_words)
       print evidence_statement, previous_mappings
 
       lines.append(evidence_statement)
@@ -172,4 +181,9 @@ class ConspiracyGenerator:
 
     lines.append(random.choice(warning_lines))
     lines = map(lambda x: x[0].upper() + x[1:], lines)   # capitalize first letter
-    return ''.join(lines)
+    lines = ''.join(lines)
+
+    # determine the subject
+    subject = sorted(chosen_words_map.iteritems(), key=operator.itemgetter(1), reverse=True)[0][0]
+
+    return subject, lines
