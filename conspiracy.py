@@ -162,11 +162,11 @@ class ConspiracyGenerator:
             if ok:
               break
           registers[category].append(word_choice)
-          print 'put %s from cat %s in register %d' % (word_choice, category, register_number)
+          #print 'put %s from cat %s in register %d' % (word_choice, category, register_number)
         else:
           # old register input, this is just a lookup
           word_choice = register_values[register_number - 1]
-          print 'got %s from cat %s in register %d' % (word_choice, category, register_number)
+          #print 'got %s from cat %s in register %d' % (word_choice, category, register_number)
       else:
         word_choice, required_mappings = self.getwordchoice(m, category, \
                                          previous_word_choice, previously_used, required_mappings)
