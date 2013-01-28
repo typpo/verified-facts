@@ -59,6 +59,41 @@ def capitalize_first(x):
 
 class ConspiracyGenerator:
 
+  # optional verification step - check validity of all sentences and
+  # output some basic stats
+  def verify(self):
+    intro_counts = {}
+    for line in intro_lines:
+      try:
+        statement, required_mappings, chosen_words = self.process(line, {})
+        for key,val in required_mappings.iteritems():
+          intro_counts.setdefault(key, 0)
+          intro_counts[key] += len(val)
+      except Exception as ex:
+        print 'Invalid line:', line
+        print 'Exception:', ex
+
+    evidence_counts = {}
+    for line in evidence_lines:
+      try:
+        statement, required_mappings, chosen_words = self.process(line, {})
+        for key,val in required_mappings.iteritems():
+          evidence_counts.setdefault(key, 0)
+          evidence_counts[key] += len(val)
+      except Exception as ex:
+        print 'Invalid line:', line
+        print 'Exception:', ex
+
+    # stats
+    intro_counts = sorted(intro_counts.iteritems(), key=operator.itemgetter(1), reverse=True)
+    evidence_counts = sorted(evidence_counts.iteritems(), key=operator.itemgetter(1), reverse=True)
+    print 'Intro counts:'
+    for item, count in intro_counts:
+      print '  * %s - %d' % (item, count)
+    print '\nEvidence counts:'
+    for item, count in evidence_counts:
+      print '  * %s - %d' % (item, count)
+
   def getwordchoice(self, m, category, previous_word_choice, previously_used, required_mappings):
     if previous_word_choice and category in PLURALIZE_CATEGORIES:
       singular, plural = category.split('/')
