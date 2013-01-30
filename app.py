@@ -51,12 +51,6 @@ def slugify(text, delim=u'-'):
     return unicode(delim.join(result))
 """
 
-"""
-@app.route("/path/<query>")
-def path(query):
-  return graph.lookup(query)
-"""
-
 ConspiracyGenerator().verify()
 
 if __name__ == "__main__":
