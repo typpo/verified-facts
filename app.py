@@ -77,7 +77,7 @@ def generate_conspiracy_args(preset_mappings):
   slug = slugify(subject)
   page_id = page_cache.get_next_id()
 
-  permalink = 'http://verifiedfacts.org/i/%s/%s' % (slug, page_id)
+  permalink = 'http://www.verifiedfacts.org/i/%s/%s' % (slug, page_id)
 
   args = {
       'subject': subject,
