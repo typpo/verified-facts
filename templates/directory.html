@@ -5,8 +5,8 @@
   <p class="title">Verified Facts Article Directory</p>
 <div id="results" class="results">
   <ul>
-    {% for subject, b64category in links %}
-      <li><a href="/">{{subject}}</a></li>
+    {% for subject, encoded_subject, b64category in links %}
+      <li><a href="/s/{{encoded_subject}}?c={{b64category}}">{{subject}}</a></li>
     {% endfor %}
   </ul>
 </div>

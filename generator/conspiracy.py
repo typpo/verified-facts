@@ -107,8 +107,8 @@ class ConspiracyGenerator:
     # Returns list of tuples of (subject, category)
     ret = []
     for x in VARS:
-      extme = zip(VARS[x], x*len(VARS))
-      ret.extend(extme)
+      for val in VARS[x]:
+        ret.append((val, x))
     ret.sort()
     return ret
 
@@ -218,7 +218,20 @@ class ConspiracyGenerator:
 
     lines = []
     chosen_words_map = {}
-    intro_statement, previous_mappings, chosen_words = self.process(random.choice(intro_lines), {})
+    if preset_mappings:
+      # we need to choose a sentence with this category
+      random.shuffle(intro_lines)
+      user_key_input = preset_mappings.keys()[0]   # user wants a conspiracy about this category
+      required_subject = preset_mappings[user_key_input][0]
+      for line in intro_lines:
+        chaining_search_str = u'{{%s}}' % (user_key_input)
+        if line.find(chaining_search_str) > -1:
+          intro_statement, previous_mappings, chosen_words = self.process(line, preset_mappings)
+          break
+    else:
+      intro_statement, previous_mappings, chosen_words = \
+          self.process(random.choice(intro_lines), {})
+      required_subject = None
     first_subject = chosen_words[0]
     self.add_to_chosen_words_map(chosen_words_map, chosen_words)
     print intro_statement, previous_mappings
@@ -258,7 +271,9 @@ class ConspiracyGenerator:
 
     # determine the subject
     subject = sorted(chosen_words_map.iteritems(), key=operator.itemgetter(1), reverse=True)[0][0]
-    if subject != first_subject:
+    if required_subject and required_subject != first_subject:
+      subject = '%s and %s' % (capitalize_first(first_subject), capitalize_first(required_subject))
+    elif subject != first_subject:
       subject = '%s and %s' % (capitalize_first(first_subject), capitalize_first(subject))
     else:
       subject = capitalize_first(subject)

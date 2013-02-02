@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 from flask import Flask, request, redirect, session, url_for, render_template
 from generator.conspiracy import ConspiracyGenerator
+import urllib
+import urlparse
 import json
 import random
 import base64
@@ -19,14 +21,19 @@ def verification():
 
 @app.route("/directory")
 def directory():
-  links = [(x[0], base64.b64encode(x[1])) \
-      for x in ConspiracyGenerator().get_all_subjects()]
+  links = []
+  for x in ConspiracyGenerator().get_all_subjects():
+    val = (x[0], urllib.quote(x[0].encode('utf-8')), urllib.quote(base64.b64encode(x[1])))
+    links.append(val)
   return render_template('directory.html', \
       links=links)
 
 @app.route("/s/<subject>")
 def path(subject):
-  subject_category = base64.b64decode(request.args.get('c'))
+  subject_category = base64.b64decode(urllib.unquote(request.args.get('c')))
+  subject = urllib.unquote(subject)
+  print subject_category
+  print subject
   preset = {}
   preset[subject_category] = [subject]
   return generate_conspiracy_page(preset_mappings=preset)
