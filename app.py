@@ -20,7 +20,7 @@ def index():
 def verification():
   return render_template('verification.html')
 
-@app.route("/lookup")
+@app.route("/search")
 def verification():
   return render_template('lookup.html')
 
