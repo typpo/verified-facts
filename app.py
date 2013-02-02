@@ -87,15 +87,17 @@ def slugify(text, delim=u'-'):
         result.extend(unidecode(word).split())
     return unicode(delim.join(result))
 
-print 'Verifying and generating initial pages...'
-cg = ConspiracyGenerator()
-cg.verify()
-# generate slugged pages for everything ahead of time
-# TODO will have to recover these from cache when server restarts
-for x in ConspiracyGenerator().get_all_subjects():
-  obj = {x[1]: [x[0], x[0]]}
-  print obj
-  generate_conspiracy_args(obj)
+def initialize():
+  print 'Verifying and generating initial pages...'
+  cg = ConspiracyGenerator()
+  cg.verify()
+  if page_cache.first_time:
+    # generate slugged pages for everything ahead of time
+    for x in ConspiracyGenerator().get_all_subjects():
+      obj = {x[1]: [x[0], x[0]]}
+      generate_conspiracy_args(obj)
+
+initialize()
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', use_reloader=False)

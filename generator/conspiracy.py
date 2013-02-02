@@ -251,19 +251,19 @@ class ConspiracyGenerator:
       required_subject = None
     first_subject = chosen_words[0]
     self.add_to_chosen_words_map(chosen_words_map, chosen_words)
-    print intro_statement, previous_mappings
+    #print intro_statement, previous_mappings
     lines.append(intro_statement)
     used_evidence = set()  # don't repeat evidence lines
     for num_evidence in range(0, 3):
-      print '------------------------------------'
+      #print '------------------------------------'
       # choose an evidence statement that contains some linkage to intro statement
       ok = False
-      for i in range(0, 100):
+      for i in range(0, 200):
         candidate_statement = random.choice(evidence_lines)
         possible_linked_categories = previous_mappings.keys()
         random.shuffle(possible_linked_categories)
         possible_linked_categories = sorted(possible_linked_categories, demote_precedence_sort)
-        print 'considering categories:', possible_linked_categories
+        #print 'considering categories:', possible_linked_categories
         for key in possible_linked_categories:
           chaining_search_str = u'{{%s}}' % (key)
           if candidate_statement.find(chaining_search_str) > -1 \
@@ -271,12 +271,12 @@ class ConspiracyGenerator:
             ok = True
         if ok: break
       if not ok:
-        lines.append('**** chaining failed, could not find any key match in', previous_mappings)
+        lines.append('**** chaining failed, could not find any key match in %s' % (previous_mappings))
         return self.generate_paragraph()
       used_evidence.add(candidate_statement)
       evidence_statement, previous_mappings, chosen_words = self.process(candidate_statement, previous_mappings)
       self.add_to_chosen_words_map(chosen_words_map, chosen_words)
-      print evidence_statement, previous_mappings
+      #print evidence_statement, previous_mappings
 
       lines.append(evidence_statement)
       if random.random() > .4:

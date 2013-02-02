@@ -1,0 +1,3 @@
+#!/bin/bash
+
+redis-cli -n 1 keys "conspiracy:pages:id:*" | wc -l
