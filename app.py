@@ -44,10 +44,16 @@ def directory():
 @app.route("/s/<subject>")
 def path(subject):
   subject_category = base64.b64decode(urllib.unquote(request.args.get('c')))
-  subject = urllib.unquote(subject).replace('|', '/')   # ghetto escaping
-  preset = {}
-  preset[subject_category] = [subject, subject]  # put it in twice so it's used more
-  return generate_conspiracy_page(preset_mappings=preset)
+  subject_unescaped = urllib.unquote(subject).replace('|', '/')   # ghetto escaping
+
+  # put it in twice so it's used more
+  preset_mappings = {}
+  preset_mappings[subject_category] = [subject_unescaped, subject_unescaped]
+
+  page_id, args = generate_conspiracy_args(preset_mappings)
+
+  return redirect('/i/%s/%s' % (subject, page_id), 302)
+
 
 @app.route("/i/<subject>/<page_id>")
 def id_path(subject, page_id):
@@ -58,7 +64,7 @@ def id_path(subject, page_id):
     return "bad id"
 
 def generate_conspiracy_page(preset_mappings={}):
-  args = generate_conspiracy_args(preset_mappings)
+  page_id, args = generate_conspiracy_args(preset_mappings)
   return render_template('index.html', **args)
 
 def generate_conspiracy_args(preset_mappings):
@@ -77,7 +83,7 @@ def generate_conspiracy_args(preset_mappings):
       'page_id': page_id,
   }
   page_cache.save(page_id, args)
-  return args
+  return page_id, args
 
 _punct_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
 def slugify(text, delim=u'-'):
