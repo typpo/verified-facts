@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from flask import Flask, request, redirect, session, url_for, render_template
 from generator.conspiracy import ConspiracyGenerator
+from id_manager import IdManager
 import urllib
 import urlparse
 import json
@@ -11,6 +12,8 @@ from unidecode import unidecode
 
 app = Flask(__name__)
 app.secret_key = 'not a secret key'
+
+page_cache = IdManager()
 
 @app.route("/")
 def index():
@@ -46,16 +49,37 @@ def path(subject):
   preset[subject_category] = [subject, subject]  # put it in twice so it's used more
   return generate_conspiracy_page(preset_mappings=preset)
 
+@app.route("/i/<subject>/<page_id>")
+def id_path(subject, page_id):
+  try:
+    args = page_cache.get_kwargs(page_id)
+    return render_template('index.html', **args)
+  except:
+    return "bad id"
+
 def generate_conspiracy_page(preset_mappings={}):
+  args = generate_conspiracy_args(preset_mappings)
+  return render_template('index.html', **args)
+
+def generate_conspiracy_args(preset_mappings):
   cg = ConspiracyGenerator()
   subject, paragraph, imgurl = cg.generate_paragraph(preset_mappings)
   paragraph = paragraph.replace('\n', '<br><br>')
   citations = cg.generate_citations()
-  return render_template('index.html', subject=subject, text=paragraph,\
-      imgurl=imgurl, citations=citations)
+
+  page_id = page_cache.get_next_id()
+  args = {
+      'subject': subject,
+      'slug': slugify(subject),
+      'text': paragraph,
+      'imgurl': imgurl,
+      'citations': citations,
+      'page_id': page_id,
+  }
+  page_cache.save(page_id, args)
+  return args
 
 _punct_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
-
 def slugify(text, delim=u'-'):
     """Generates an ASCII-only slug."""
     result = []
@@ -63,7 +87,15 @@ def slugify(text, delim=u'-'):
         result.extend(unidecode(word).split())
     return unicode(delim.join(result))
 
-ConspiracyGenerator().verify()
+print 'Verifying and generating initial pages...'
+cg = ConspiracyGenerator()
+cg.verify()
+# generate slugged pages for everything ahead of time
+# TODO will have to recover these from cache when server restarts
+for x in ConspiracyGenerator().get_all_subjects():
+  obj = {x[1]: [x[0], x[0]]}
+  print obj
+  generate_conspiracy_args(obj)
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0')
