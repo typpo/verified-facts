@@ -5,6 +5,7 @@ import operator
 import sys
 import re
 import yaml
+import unicodedata
 
 dirname, filename = os.path.split(os.path.abspath(__file__))
 content_dir = dirname + '/content/'
@@ -14,38 +15,50 @@ vars_json = f.read()
 f.close()
 VARS = yaml.load(vars_json)  # reading yaml because it's a lenient json parser
 
+unicode_punctuation = {
+  u'\u2018': "'",
+  u'\u2019': "'",
+}
+def utf8normalize(text):
+  global unicode_punctuation
+  for src, dest in unicode_punctuation.iteritems():
+    text = text.replace(src, dest)
+  return text
+  #return unicodedata.normalize('NFD', s).encode('ascii', 'ignore')
+
+
 f = open(content_dir + 'introductions', 'r')
 intro_lines = filter(lambda x: x.strip() != '', f.readlines())
-intro_lines = map(lambda x: x.decode('utf-8'), intro_lines)
+intro_lines = map(lambda x: utf8normalize(x.decode('utf-8')), intro_lines)
 f.close()
 
 f = open(content_dir + 'evidence', 'r')
 evidence_lines = filter(lambda x: x.strip() != '', f.readlines())
-evidence_lines = map(lambda x: x.decode('utf-8'), evidence_lines)
+evidence_lines = map(lambda x: utf8normalize(x.decode('utf-8')), evidence_lines)
 f.close()
 
 f = open(content_dir + 'warnings', 'r')
 warning_lines = filter(lambda x: x.strip() != '', f.readlines())
-warning_lines = map(lambda x: x.decode('utf-8'), warning_lines)
+warning_lines = map(lambda x: utf8normalize(x.decode('utf-8')), warning_lines)
 f.close()
 
 f = open(content_dir + 'filler', 'r')
 filler_lines = filter(lambda x: x.strip() != '', f.readlines())
-filler_lines = map(lambda x: x.decode('utf-8'), filler_lines)
+filler_lines = map(lambda x: utf8normalize(x.decode('utf-8')), filler_lines)
 f.close()
 
 f = open(content_dir + 'citations', 'r')
 citation_lines = filter(lambda x: x.strip() != '', f.readlines())
-citation_lines = map(lambda x: x.decode('utf-8'), citation_lines)
+citation_lines = map(lambda x: utf8normalize(x.decode('utf-8')), citation_lines)
 f.close()
 
 f = open(content_dir + 'images', 'r')
 imageurls = filter(lambda x: x.strip() != '', f.readlines())
-imageurls = map(lambda x: x.decode('utf-8'), imageurls)
+imageurls = map(lambda x: utf8normalize(x.decode('utf-8')), imageurls)
 f.close()
 
 for x in VARS:
-  VARS[x] = filter(lambda x: x.strip() != '', map(lambda x: x.strip(), VARS[x].split(',')))
+  VARS[x] = filter(lambda x: utf8normalize(unicode(x.strip())) != '', map(lambda x: x.strip(), VARS[x].split(',')))
 
 PLURALIZE_CATEGORIES = set(['has/have', 'is/are', 'was/were', 'it/them', 'its/their', '\'s/\''])
 
@@ -146,8 +159,8 @@ class ConspiracyGenerator:
     previous_word_choice = None
     for m in ms:
       m = unicode(m)
-      category = m.replace('{{', '').replace('}}', '')
-      if category[-1].isnumeric():
+      category = utf8normalize(m.replace('{{', '').replace('}}', ''))
+      if category[-1].isdigit():
         register_number = int(category[-1])
         #register_key = category[:-1]
         category = category[:-1]   # adjust category to canonical form
