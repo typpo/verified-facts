@@ -49,6 +49,9 @@ for x in VARS:
 
 PLURALIZE_CATEGORIES = set(['has/have', 'is/are', 'was/were', 'it/them', 'its/their', '\'s/\''])
 
+# known plurals that are not part of a set
+FORCE_PLURAL = set(['Illuminati', 'Opus Dei', 'Obama\'s childhood years in Kenya'])
+
 # Try not to link on these categories.  Without something like this you tend to get non-sequiturs, linked
 # by the object of sentences.
 LINKED_CATEGORIES_DEMOTE_PRECEDENCE = ['malady', 'dangerous_noun', 'abstract_noun', 'era']
@@ -115,7 +118,8 @@ class ConspiracyGenerator:
   def getwordchoice(self, m, category, previous_word_choice, previously_used, required_mappings):
     if previous_word_choice and category in PLURALIZE_CATEGORIES:
       singular, plural = category.split('/')
-      return (plural if previous_word_choice[-1] == 's' else singular, required_mappings)
+      return (plural if previous_word_choice[-1] == 's' or previous_word_choice in FORCE_PLURAL \
+          else singular, required_mappings)
     elif category in required_mappings and len(required_mappings[category]) > 0:
       # chained sentence
       word_choice = required_mappings[category][0]

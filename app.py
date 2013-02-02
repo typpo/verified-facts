@@ -42,10 +42,8 @@ def directory():
 def path(subject):
   subject_category = base64.b64decode(urllib.unquote(request.args.get('c')))
   subject = urllib.unquote(subject).replace('|', '/')   # ghetto escaping
-  print subject_category
-  print subject
   preset = {}
-  preset[subject_category] = [subject]
+  preset[subject_category] = [subject, subject]  # put it in twice so it's used more
   return generate_conspiracy_page(preset_mappings=preset)
 
 def generate_conspiracy_page(preset_mappings={}):
