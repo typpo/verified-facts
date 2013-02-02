@@ -1,14 +1,15 @@
 {% extends "base.html" %}
-{% block title %}Conspiracy Theory Generator - Verified Facts{% endblock %}
+{% block title %}Search Articles - Verified Facts{% endblock %}
 {% block content %}
 <div class="hero">
-  <p class="title">Search for articles - Verified Facts</p>
+  <p class="title">Search for articles</p>
 <div id="results" class="results">
   <p>
-<form id="search_form">
+<form id="first_form">
 <h3>Find me some information about: <input type="text" id="query"/> <input type="button" id="first_submit" value="Submit"/></h3>
+</form>
 <div id="category_container" style="display:none;">
-
+<form id="second_form">
 <h3>Please describe your query:
 <select id="category_select">
   <option value="famous_person" selected>Person</option>
@@ -20,8 +21,8 @@
 </select>
 <input type="button" id="category_submit" value="Search"/>
 </h3>
-</div>
 </form>
+</div>
   </p>
 <hr/>
   <p>
@@ -32,16 +33,18 @@
   </p>
 </div>
 <script>
-document.getElementById('first_submit').onclick = function() {
+document.getElementById('first_form').onsubmit = document.getElementById('first_submit').onclick = function() {
   var txt = document.getElementById('query').value;
   if (txt != '')
     document.getElementById('category_container').style.display = 'block';
+  return false;
 }
-document.getElementById('category_submit').onclick = function() {
+document.getElementById('second_form').onsubmit = document.getElementById('category_submit').onclick = function() {
   var subj = document.getElementById('query').value.replace('/', '|');
   var cat = document.getElementById('category_select').value;
   var catb64 = b64(cat);
   document.location = '/s/' + subj + '?c=' + catb64;
+  return false;
 }
 
 var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";

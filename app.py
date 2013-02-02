@@ -21,8 +21,12 @@ def verification():
   return render_template('verification.html')
 
 @app.route("/search")
-def verification():
+def search():
   return render_template('lookup.html')
+
+@app.route("/report")
+def report():
+  return render_template('report.html')
 
 @app.route("/directory")
 def directory():
