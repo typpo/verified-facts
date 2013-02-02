@@ -4,16 +4,19 @@
 <div class="hero">
   <p class="title">The Truth About {{subject}}</p>
 <div id="results" class="results">
-  <p>
   {% for line in text %}
     <p>
-    {% if imgpos == loop.index %}
-    <img src="{{imgurl}}" style="height:100px;padding:10px;float:right;"/>
+    {% if imgpos == loop.index0 %}
+      {% if imgpos == 0 %}
+        <img src="{{imgurl}}" style="height:100px;padding:10px;float:left;"/>
+      {% else %}
+        <img src="{{imgurl}}" style="height:100px;padding:10px;float:right;"/>
+      {% endif %}
     {% endif %}
+
     {{line|safe}}
     </p>
   {% endfor %}
-  </p>
   <div class="citations">
     Sources:
     <ol>

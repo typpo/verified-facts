@@ -70,8 +70,8 @@ def generate_conspiracy_page(preset_mappings={}):
 def generate_conspiracy_args(preset_mappings):
   cg = ConspiracyGenerator()
   subject, paragraph, imgurl = cg.generate_paragraph(preset_mappings)
-  paragraph_lines = paragraph.split('\n')
-  imgpos = random.randint(1, 2)
+  paragraph_lines = filter(lambda x: x.strip() != '', paragraph.split('\n'))
+  imgpos = random.randint(0, 1)
   citations = cg.generate_citations()
 
   slug = slugify(subject)
