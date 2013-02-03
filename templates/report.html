@@ -11,3 +11,9 @@
   </p>
 </div>
 {% endblock %}
+
+{% block scripts %}
+<script>
+  window.onload = function() { mixpanel.track('report'); }
+</script>
+{% endblock %}

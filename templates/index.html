@@ -30,13 +30,14 @@
     <div class="share-buttons">
   <div style="margin:0" class="fb-like" data-href="http://verifiedfacts.org" data-send="false" data-layout="button_count" data-show-faces="false"></div>
   <a style="font-size:10px;" href="https://twitter.com/share" data-url="{{permalink}}" data-counturl="http://verifiedfacts.org" class="twitter-share-button" data-lang="en">Tweet</a>
-  <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
   </div>
   </div>
 </div>
+{% endblock %}
 
 {# SOCIAL STUFF BELOW #}
 
+{% block scripts %}
 <div id="fb-root"></div>
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
@@ -46,4 +47,7 @@
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+<script>
+  window.onload = function() { mixpanel.track('conspiracy'); }
+</script>
 {% endblock %}
