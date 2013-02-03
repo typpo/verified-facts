@@ -26,7 +26,6 @@ def utf8normalize(text):
   return text
   #return unicodedata.normalize('NFD', s).encode('ascii', 'ignore')
 
-
 f = open(content_dir + 'introductions', 'r')
 intro_lines = filter(lambda x: x.strip() != '', f.readlines())
 intro_lines = map(lambda x: utf8normalize(x.decode('utf-8')), intro_lines)

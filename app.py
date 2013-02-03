@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from flask import Flask, request, redirect, session, url_for, render_template
-from generator.conspiracy import ConspiracyGenerator
+import generator.conspiracy
 from id_manager import IdManager
 import urllib
 import urlparse
@@ -19,6 +19,12 @@ page_cache = IdManager()
 def index():
   return generate_conspiracy_page()
 
+@app.route("/secret_reload_foo")
+def secret_reload():
+  print 'Reloading generator module...'
+  reload(generator.conspiracy)
+  return "ok"
+
 @app.route("/verification")
 def verification():
   return render_template('verification.html')
@@ -34,7 +40,7 @@ def report():
 @app.route("/directory")
 def directory():
   links = []
-  for x in ConspiracyGenerator().get_all_subjects():
+  for x in generator.conspiracy.ConspiracyGenerator().get_all_subjects():
     val = (x[0], urllib.quote(x[0].encode('utf-8').replace('/', '|')),\
         urllib.quote(base64.b64encode(x[1])))
     links.append(val)
@@ -68,7 +74,7 @@ def generate_conspiracy_page(preset_mappings={}):
   return render_template('index.html', **args)
 
 def generate_conspiracy_args(preset_mappings):
-  cg = ConspiracyGenerator()
+  cg = generator.conspiracy.ConspiracyGenerator()
   subject, paragraph, imgurl = cg.generate_paragraph(preset_mappings)
   paragraph_lines = filter(lambda x: x.strip() != '', paragraph.split('\n'))
   imgpos = random.randint(0, 1)
@@ -101,11 +107,11 @@ def slugify(text, delim=u'-'):
 
 def initialize():
   print 'Verifying and generating initial pages...'
-  cg = ConspiracyGenerator()
+  cg = generator.conspiracy.ConspiracyGenerator()
   cg.verify()
   if page_cache.first_time:
     # generate slugged pages for everything ahead of time
-    for x in ConspiracyGenerator().get_all_subjects():
+    for x in generator.conspiracy.ConspiracyGenerator().get_all_subjects():
       obj = {x[1]: [x[0], x[0]]}
       generate_conspiracy_args(obj)
 
