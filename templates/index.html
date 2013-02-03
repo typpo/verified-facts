@@ -26,7 +26,7 @@
     </ol>
   </div>
   <div class="share">
-    Share: <span class="permalink"><a href="{{permalink}}">{{permalink}}</a></span>
+    <a href="{{permalink}}">Share</a>: <input id="permalink-box" type="text" value="{{permalink}}" style="width:400px">
     <div class="share-buttons">
   <div style="margin:0" class="fb-like" data-href="http://verifiedfacts.org" data-send="false" data-layout="button_count" data-show-faces="false"></div>
   <a style="font-size:10px;" href="https://twitter.com/share" data-url="{{permalink}}" data-counturl="http://verifiedfacts.org" class="twitter-share-button" data-lang="en">Tweet</a>
@@ -42,6 +42,13 @@
 {# SOCIAL STUFF BELOW #}
 
 {% block scripts %}
+<script>
+  document.getElementById('permalink-box').onclick = function() {
+    document.getElementById('permalink-box').focus();
+    document.getElementById('permalink-box').select();
+  }
+</script>
+
 <div id="fb-root"></div>
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
