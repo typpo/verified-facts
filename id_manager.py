@@ -7,11 +7,14 @@ import json
 REDIS_PREFIX = "conspiracy:pages:"
 REDIS_PAGEID_PREFIX = "conspiracy:pages:id:"
 
+REMOTE_REDIS_HOST = '10.151.12.22'
+
 class IdManager():
   def __init__(self):
     self._next_id = 0
     self._id_to_kwargs = {}
     self._redis = redis.StrictRedis(host='localhost', port=6379, db=1)
+    self._remote_redis = redis.StrictRedis(host=REMOTE_REDIS_HOST, port=6379, db=1)
 
     # load in existing pages
     pagekeys = self._redis.keys(REDIS_PAGEID_PREFIX + '*')
@@ -27,12 +30,17 @@ class IdManager():
     self._id_to_kwargs[page_id] = args
 
     json_args = json.dumps(args)
-    self._redis.set(REDIS_PAGEID_PREFIX + str(page_id), json_args)
+    # self._redis.set(REDIS_PAGEID_PREFIX + str(page_id), json_args)
+    # store in remote from now on
+    self._remote_redis.set(REDIS_PAGEID_PREFIX + str(page_id), json_args)
 
   def get_kwargs(self, page_id):
     json_args = self._redis.get(REDIS_PAGEID_PREFIX + str(page_id))
     if not json_args:
-      return None
+      # try from remote
+      json_args = self._remote_redis.get(REDIS_PAGEID_PREFIX + str(page_id))
+      if not json_args:
+        return None
     return json.loads(json_args)
 
   def __encode(self, n):
