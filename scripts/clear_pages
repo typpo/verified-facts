@@ -1,3 +1,4 @@
 #!/bin/bash
 
-redis-cli -n 1 keys "conspiracy:pages:id:*" | xargs redis-cli -n 1 del
+echo "disabled"
+#redis-cli -n 1 keys "conspiracy:pages:id:*" | xargs redis-cli -n 1 del
