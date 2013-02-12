@@ -3,3 +3,4 @@ pyyaml
 unidecode
 redis
 gunicorn
+pymongo
