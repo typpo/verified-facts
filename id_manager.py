@@ -1,5 +1,3 @@
-# TODO this stuff needs to be switched to redis and made threadsafe
-
 import base64
 import redis
 import json
@@ -50,7 +48,6 @@ class IdManager():
     return self.__redis_lookup(page_id)
 
   def __mongo_lookup(self, page_id):
-    # TODO check type
     return self._mongo_coll.find_one({'permalink_id': page_id})
 
   def __redis_lookup(self, page_id):

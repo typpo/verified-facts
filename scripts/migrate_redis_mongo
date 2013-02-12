@@ -9,8 +9,6 @@ REDIS_PAGEID_PREFIX = "conspiracy:pages:id:"
 
 REMOTE_REDIS_HOST = '10.151.12.22'
 
-# we have two redis clients to migrate
-
 print 'Grabbing redis...'
 
 redis_clients = [
