@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sudo apt-get install mongodb-server nginx python-virtualenv build-essential python-dev redis-server
