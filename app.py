@@ -109,11 +109,13 @@ def initialize():
   print 'Verifying and generating initial pages...'
   cg = generator.conspiracy.ConspiracyGenerator()
   cg.verify()
+  """
   if page_cache.first_time:
     # generate slugged pages for everything ahead of time
     for x in generator.conspiracy.ConspiracyGenerator().get_all_subjects():
       obj = {x[1]: [x[0], x[0]]}
       generate_conspiracy_args(obj)
+  """
 
 initialize()
 
