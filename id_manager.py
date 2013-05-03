@@ -30,7 +30,8 @@ class IdManager():
     # note that we don't check for duplicate args
     self._id_to_kwargs[page_id] = args
 
-    json_args = json.dumps(args)
+    #json_args = json.dumps(args)
+    json_args = args
 
     # Storing in mongo
     json_args['permalink_id'] = page_id
